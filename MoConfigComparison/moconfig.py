@@ -130,7 +130,7 @@ def initialize_moconfig():
 	print(">> predict on test set using the moConfig sampling ...")
 
 	testfolder = "parse_data/split_data/"
-	monfolder = "E:/git/MoConfigSampling/eclipse-workspace/testbed/output/"
+	monfolder = "../MoConfigSampling/testbed/output/"
 
 	projs = [f for f in os.listdir(monfolder)]  # data in output directory
 	print(projs)
@@ -146,4 +146,4 @@ def initialize_moconfig():
 
 if __name__ == "__main__":
 	# start of the MoConfig
-	# initialize_moconfig()
+	initialize_moconfig()

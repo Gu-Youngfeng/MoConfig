@@ -350,10 +350,27 @@ def combine_train_and_validation():
             pdcontent.to_csv(combine_train,index=False)
 
 
+def copy_data(from_path, to_path):
+    import shutil
+    files = os.listdir(from_path)
+    print(files)
+    for file in files:
+        csv_files = [c for c in os.listdir(from_path + "/" + file) if c.endswith("_0.csv")]
+        for c in csv_files:
+            # if not os.path.exists(to_path + c):
+            #   os.mak
+            print(c)
+            shutil.copy(from_path + file + "/" + c, to_path + c)
+            print(os.path.basename(c), "is copied")
+
+
 if __name__ == '__main__':
-    # start of the rank-based method
-    # initialize_rank_based()
-    # combine_sub_train_and_validation()
-    # combine_train_and_validation()
+    # >> run the rank-based method
+    initialize_rank_based()
+    combine_sub_train_and_validation()
+    combine_train_and_validation()
+
+    # >> generate the input data of MoConfig
+    copy_data("parse_data/combined_train/", "../MoConfigSampling/eclipse-workspace/testbed/input/")
 
     

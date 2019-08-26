@@ -37,20 +37,6 @@ def get_basic_info(path):
 	print("<tr><td class=\"name\">%-25s</td><td>%-10d</td><td>%-10d</td></tr>"%(os.path.basename(path),len(pdcontent.columns)-1,len(pdcontent)))
 
 
-def copy_data(from_path, to_path):
-	import shutil
-	files = os.listdir(from_path)
-	print(files)
-	for file in files:
-		csv_files = [c for c in os.listdir(from_path + "/" + file) if c.endswith("_0.csv")]
-		for c in csv_files:
-			# if not os.path.exists(to_path + c):
-			# 	os.mak
-			print(c)
-			shutil.copy(from_path + file + "/" + c, to_path + c)
-			print(os.path.basename(c), "is copied")
-
-
 def to_numeric(line):
 
 	line = line.strip()[1:-1] # remove the "[" and "]\n"
@@ -794,10 +780,6 @@ if __name__ == "__main__":
 	# mmre_data = get_whole_mmre()
 	# draw_rank_based_mmre(mmre_data)
 
-
-	## >>> read data from eclipse
-	# copy_data("parse_data/combined_train/", "E:/git/MoConfigSampling/eclipse-workspace/testbed/input/")
-
 	# read the eclipse results and show the objective values of each dataset  
 	projs, datas = read_eclipse_results("eclipse_results.txt") # path should be changed in different environments
 	print(projs)
@@ -822,7 +804,6 @@ if __name__ == "__main__":
 	for i in range(len(projs))[5:6]:
 		# draw_combination_3_1(projs[i][:-6], datas[i], ga_method)
 		draw_combination_4(projs[i][:-6])
-
 
 
 	## record the time cost of MoConfig
