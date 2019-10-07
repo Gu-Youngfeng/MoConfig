@@ -5,27 +5,31 @@ import java.util.List;
 import cn.edu.whu.cstar.mosampling.tool.FileReaderWriter;
 
 /***
- * <p>Class MOEAInstance reads the 2-dimension array from .csv file.</p> 
+ * <p>Class InstanceReader reads instance from .csv file and then constructs the results in a 2-dimensional way.
+ * Call the variable {@link#matrixValue} to get the results. 
+ * </p>
+ * @author jifeng
+ * @update 2019.10.5
  */
-public class MOEAInstance {
+public class InstanceReader {
 
-	/* i - one configuration, j - one option */
+	/** instances, where i is the configuration index and j is the option index*/
 	double[][] matrixValue = null; // save all the configuration into the 2-dimension array, matrixValue
+		
+	int numOption = 8; // default number of options, this must be re-assigned in readInstance()
+	int numConfiguration = -1; // default number of configurations, this must be re-assigned in readInstance()
 	
-	
-	int numOption = 8; // number of options
-	int numConfiguration = -1; // number of configurations
-	
-	
-	public MOEAInstance(String inPath)
-	{
+	public InstanceReader(String inPath) {
 		readInstance(inPath);
 	}
 	
-	public void readInstance(String inPath)
-	{
+	/** To get instance from the csv file in path. 
+	 *  The 1-st line in the csv file describes the options while the others shows the instance data.
+	 * */
+	public void readInstance(String inPath){
+		
 		List<String> listLine = FileReaderWriter.readFileByLine(inPath);
-		numConfiguration = listLine.size() -1; // assignment of numConfiguration
+		numConfiguration = listLine.size() -1; 
 		
 		String line = null;
 		double value = -1;

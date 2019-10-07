@@ -3,8 +3,13 @@ package cn.edu.whu.cstar.experiments;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.edu.whu.cstar.mosampling.moea.MOEA.ObjectiveName;
+import cn.edu.whu.cstar.mosampling.moea.MoConfigProblem.ObjectiveName;
 
+/***
+ * <p></p>
+ * @author yongfeng
+ * @update 2019.10.5
+ */
 public class ResultsNode {
 	
 	public String projName = "";

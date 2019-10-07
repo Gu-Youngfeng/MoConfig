@@ -1,6 +1,6 @@
 # MoConfig
 
-This project offers the source code of paper "_Moconfig: a multi-objective optimization sampling strategy in configuration systems_".
+This project shows the prototype **MoConfig**.
 [MoConfigSampling](MoConfigSampling/) (in Java) and [MoConfigComparison](MoConfigComparison/) (in Python) are two main parts, implementing the process of MoConfig sampling and the comparasion with the rank-based method, respectively.
 
 ### 1. Dataset and environments
@@ -8,6 +8,7 @@ This project offers the source code of paper "_Moconfig: a multi-objective optim
 The 20 raw datasets we used are saved in the directory **MoConfigComparison/raw_data/**. 
 
 The environments of MoConfig project includes JDK 1.7/1.8, Python 3.X. Moreover, `sklearn`, `pandas`, `numpy` libraries should also be installed.
+
 
 ### 2. Experiment steps
 
@@ -31,10 +32,10 @@ The visualized results of comparision are saved in **MoConfigComparison/pics/**.
 
 Here, we list the related code entries to above steps. For instance, we just run the main function in `rankbased.py` to implement the Step 1 and Step 2.
 
-|Step|Code entries|Time cost|
+|Step|Running entry|Time cost|
 |:--|:--|:--|
 |1,2|`MoConfigComparison/rankbased.py`|Around 150 seconds|
-|3  |`MoConfigSampling/src/main/java/cn/edu/whu/cstar/mosampling/App.java`|Around 20 minutes|
+|3  |`MoConfigSampling/src/main/java/cn/edu/whu/cstar/experiments/Launcher.java`|Around 20 minutes|
 |4  |`MoConfigComparison/moconfig.py`|Around 40 minutes|
 |5  |`MoConfigComparison/experiments.py`|Arounds 150 seconds|
 

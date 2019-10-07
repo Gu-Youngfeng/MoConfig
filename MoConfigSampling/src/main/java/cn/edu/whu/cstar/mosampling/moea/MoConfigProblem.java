@@ -1,7 +1,5 @@
 package cn.edu.whu.cstar.mosampling.moea;
 
-
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,18 +10,18 @@ import org.moeaframework.problem.AbstractProblem;
 
 
 /**
- * 190723, 1521
+ * <p>Definition of the moea problem extended from the AbstractProblem.
+ * If you have to add new objective then you add code at MOD-1, MOD-2, MOD-3.
+ * </p>
  * @author jifeng
- *
+ * @update 2019.10.5
  */
-public class MOEA extends AbstractProblem {
+public class MoConfigProblem extends AbstractProblem {
 	
-	/**
-	 * To be minimized. 
-	 * @author jifeng
-	 */
+
 	public enum ObjectiveName {
-			NUMSAMPLE, ENTROPY, VARIANCE, DENSITY
+			NUMSAMPLE, ENTROPY, VARIANCE, DENSITY,
+			/** MOD-1: add new objective name here*/
 	}
 	
 	public static int NUM_VARIABLE = 1; // 1 variable with numFitness bits. 
@@ -35,12 +33,10 @@ public class MOEA extends AbstractProblem {
 	
 	private ObjectiveName objectiveA = null;
 	private ObjectiveName objectiveB = null;
-	
-	
-	public final static double SMOOTH_FACTOR = 0.000001;
-	
-	
-	private MOEAInstance inst = null;
+		
+//	public final static double SMOOTH_FACTOR = 0.000001;
+		
+	private InstanceReader inst = null;
 	private int numOption = -1;
 	private int numConfiguration = -1;
 
@@ -49,7 +45,7 @@ public class MOEA extends AbstractProblem {
 	 * 
 	 * {@code indexObjectiveA} and {@code indexObjectiveB} are the indexes of two objectives. 
 	 */
-	public MOEA(MOEAInstance inst, ObjectiveName objectiveA, ObjectiveName objectiveB) {
+	public MoConfigProblem(InstanceReader inst, ObjectiveName objectiveA, ObjectiveName objectiveB) {
 		super(1, NUM_OBJECTIVE);
 		this.objectiveA = objectiveA;
 		this.objectiveB = objectiveB;
@@ -67,10 +63,9 @@ public class MOEA extends AbstractProblem {
 	 */
 	@Override
 	public Solution newSolution() {
-		Solution solution = new Solution(getNumberOfVariables(), 
-				getNumberOfObjectives());
+		Solution solution = new Solution(getNumberOfVariables(), getNumberOfObjectives());
 	
-		solution.setVariable(0, new BinaryVariable(inst.numConfiguration)); // set the 1-st variable, decision variable for binary strings.
+		solution.setVariable(0, new BinaryVariable(inst.numConfiguration)); // initialize the 1-st decision variable for binary strings.
 //		for (int i = 0; i < getNumberOfVariables(); i++)	// num_var = 1; 
 //			solution.setVariable(i, new BinaryVariable(inst.numConfiguration));
 		
@@ -81,45 +76,43 @@ public class MOEA extends AbstractProblem {
 	 * Extracts the decision variables from the solution 
 	 */
 	@Override
-	public void evaluate(Solution solution) 
-	{
+	public void evaluate(Solution solution) {
 		// Object 0, number of detected faults
 		boolean[] arrayHitFlag = new boolean[inst.numConfiguration];
-		for(int j = 0; j < inst.numConfiguration; j ++)
+		for(int j = 0; j < inst.numConfiguration; j ++) {
 			arrayHitFlag[j] = false;
+		}
 				
 		double objA = evaluateObjective(solution, objectiveA); // get the objective A of solution
-		if(objA == 0)
+		if(objA == 0) {
 			objA = MAX_INT;
-
+		}
+		
 		double objB = evaluateObjective(solution, objectiveB); // get the objective B of solution
-		if(objB == 0)
+		if(objB == 0) {
 			objB = MAX_INT;
+		}
 		
 		double[] arrayObjResult = {objA, objB}; // objective set
 		
 		solution.setObjectives(arrayObjResult);
 	}
 
-	private double evaluateObjective(Solution solution, ObjectiveName objectiveName) 
-	{
+	private double evaluateObjective(Solution solution, ObjectiveName objectiveName) {
 		double result = 0;
 		
 		BinaryVariable variable = (BinaryVariable) solution.getVariable(0); // return the variable at index 0.
 		int numHit = variable.cardinality(); // return the number of bit to true
 		boolean[] x = null;
 		
-		switch(objectiveName)
-		{
+		switch(objectiveName) {
 		case NUMSAMPLE:
 			result = numHit;
-			break;
-			
+			break;			
 		case ENTROPY:
 			x = EncodingUtils.getBinary(solution.getVariable(0)); // binary bit
 			result = calcEntropy(x, numHit);
-			break;
-			
+			break;			
 		case VARIANCE:
 			x = EncodingUtils.getBinary(solution.getVariable(0));
 			result = calcVariance(x, numHit);
@@ -127,8 +120,8 @@ public class MOEA extends AbstractProblem {
 		case DENSITY:
 			x = EncodingUtils.getBinary(solution.getVariable(0));
 			result = calcDenity(x, numHit);	
-			break;
-			
+			break;	
+		/** MOD-2: add new objective case here*/
 		default:
 			System.out.println("Error, the program should not reach here.");
 			break;
@@ -139,12 +132,17 @@ public class MOEA extends AbstractProblem {
 
 	
 	/**
+	 * <p>Evaluation of the objective Entropy, i.e., the sum of variance of selected configurations</p>
+	 * <pre>
+	 * 10000 - sum(entropy_j) where entropy_j is the entropy of Option j
+	 * entropy_j = E(-log_2(P(X_j))) = -sum_{x_ij \in X_j} P(x_ij)log(P(x_ij)), where x_ij is the i-th value of Option j
+	 * </pre>
+	 * @param x
+	 * @param numHit
 	 * @return 
-	 * 	10000 - sum(entropy_j) where entropy_j is the entropy of Option j
-	 * 	entropy_j = E(-log_2(P(X_j))) = -sum_{x_ij \in X_j} P(x_ij)log(P(x_ij)), where x_ij is the i-th value of Option j
+	 * 	
 	 */
-	private double calcEntropy(boolean[] x, int numHit)
-	{
+	private double calcEntropy(boolean[] x, int numHit) {
 		if(numHit == 0)
 			return MAX_INT;
 		
@@ -154,37 +152,30 @@ public class MOEA extends AbstractProblem {
 		double value = -1;
 		
 		double result = 0;
-		for(int j = 0; j < numOption; j ++)
-		{
+		for(int j = 0; j < numOption; j ++) {
 			// Option j
 			listValue.clear();
 			listCount.clear();
 			
-			for(int i = 0; i < numConfiguration; i ++)
-			{
-				if(x[i])
-				{
+			for(int i = 0; i < numConfiguration; i ++) {
+				if(x[i]) {
 					value = inst.matrixValue[i][j]; // value = 1
 					int sizeList = listValue.size();
 					int k = 0;
-					for( ; k < sizeList; k ++)
-					{
-						if(value < listValue.get(k))
-						{
+					for( ; k < sizeList; k ++) {
+						if(value < listValue.get(k)) {
 							listValue.add(k, value);
 							listCount.add(k, 1.0);
 							break;
 						}
-						else if(value == listValue.get(k))
-						{
+						else if(value == listValue.get(k)) {
 							listCount.set(k, listCount.get(k) +1);
 							break;
 						}
 //						else //   >
 					}
 					
-					if(k >= sizeList)
-					{
+					if(k >= sizeList) {
 						listValue.add(sizeList, value);
 						listCount.add(sizeList, 1.0);
 					}
@@ -193,8 +184,7 @@ public class MOEA extends AbstractProblem {
 			
 			double resultForOneOption = 0;
 			
-			for(int k = 0; k < listCount.size(); k ++)
-			{
+			for(int k = 0; k < listCount.size(); k ++) {
 				double prob = listCount.get(k) / numHit;
 				resultForOneOption += prob * getLog2(prob);
 			}
@@ -206,14 +196,12 @@ public class MOEA extends AbstractProblem {
 	}
 	
 	/**
-	 * <p>To calculate the sum of variance of selected configurations.</p>
-	 * @param solution
+	 * <p>Evaluation of the objective Variance, i.e., the sum of variance of selected configurations</p>
+	 * @param x
 	 * @param numHit
-	 * @return
-	 * 		sum(EuclDist(ConfigX - ConfigAvg))
+	 * @return sum(EuclDist(ConfigX - ConfigAvg))
 	 */
-	private double calcVariance(boolean[] x, int numHit)
-	{
+	private double calcVariance(boolean[] x, int numHit) {
 		if(numHit == 0)
 			return MAX_INT;
 		
@@ -225,19 +213,15 @@ public class MOEA extends AbstractProblem {
 		
 		double value = -1;
 		
-		for(int j = 0; j < numOption; j ++)
-		{
+		for(int j = 0; j < numOption; j ++) {
 			arrayMin[j] = Double.MAX_VALUE;
 			arrayMax[j] = Double.MIN_VALUE;
 			arrayAvg[j] = 0;
 		}
 		
-		for(int i = 0; i < numConfiguration; i ++)
-		{
-			if(x[i])
-			{
-				for(int j = 0; j < numOption; j ++)
-				{
+		for(int i = 0; i < numConfiguration; i ++) {
+			if(x[i]) {
+				for(int j = 0; j < numOption; j ++) {
 					value = inst.matrixValue[i][j];
 					if(value < arrayMin[j])
 						arrayMin[j] = value;
@@ -249,21 +233,17 @@ public class MOEA extends AbstractProblem {
 			}
 		}
 		
-		for(int j = 0; j < numOption; j ++)
-		{
+		for(int j = 0; j < numOption; j ++) {
 			arrayAvg[j] = arrayAvg[j] / numHit;
 			arrayMin[j] = arrayMax[j] - arrayMin[j];
 		}
 		
 		
 		double resultSub = -1;
-		for(int i = 0; i < numConfiguration; i ++)
-		{
+		for(int i = 0; i < numConfiguration; i ++) {
 			resultSub = 0;
-			if(x[i])
-			{
-				for(int j = 0; j < numOption; j ++)
-				{
+			if(x[i]) {
+				for(int j = 0; j < numOption; j ++)	{
 					value = inst.matrixValue[i][j];
 				
 					if(arrayMin[j] == 0)	// All values are the same. 
@@ -277,20 +257,17 @@ public class MOEA extends AbstractProblem {
 			
 			result += resultSub;
 		}
-		
-		
+				
 		return MAX_INT - result; 
 	}
 	
 	/**
-	 * 
-	 * @param solution
+	 * <p>Evaluation of the objective Density.</p>
+	 * @param x
 	 * @param numHit
-	 * @return
-	 * 		The ratio of different values. 
+	 * @return 
 	 */
-	private double calcDenity(boolean[] x, int numHit)
-	{
+	private double calcDenity(boolean[] x, int numHit) {
 		if(numHit == 0)
 			return MAX_INT;
 		
@@ -299,15 +276,12 @@ public class MOEA extends AbstractProblem {
 		double value = -1;
 		
 		double result = 0;
-		for(int j = 0; j < numOption; j ++)
-		{
+		for(int j = 0; j < numOption; j ++) {
 			// Option j
 			listValue.clear();
 			
-			for(int i = 0; i < numConfiguration; i ++)
-			{
-				if(x[i])
-				{
+			for(int i = 0; i < numConfiguration; i ++) {
+				if(x[i]) {
 					value = inst.matrixValue[i][j];
 					
 					if(! listValue.contains(value))
@@ -323,8 +297,9 @@ public class MOEA extends AbstractProblem {
 		return MAX_INT - result;
 	}
 	
-	private double getLog2(double val)
-	{
+	private double getLog2(double val) {
 		return Math.log(val) / LOG_E2;
 	}
+	
+	/** MOD-3: add new objective evaluation here*/
 }

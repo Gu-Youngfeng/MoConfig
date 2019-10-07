@@ -9,10 +9,15 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+/***
+ * <p>Provide the read and write operations for a file.</p>
+ * @author jifeng
+ * @update 2019.10.5
+ */
 public class FileReaderWriter {
 
-	public static List<String> readFileByLine(String inPath)
-	{
+	/** read lines list from the file in path*/
+	public static List<String> readFileByLine(String inPath) {
 		BufferedReader inReader = null;
 		String line = null;
 	
@@ -37,8 +42,7 @@ public class FileReaderWriter {
 		return result;
 	}
 	
-	public static boolean writeFileByLine(String outPath, List<String> listLine)
-	{
+	public static boolean writeFileByLine(String outPath, List<String> listLine) {
 		boolean res = false;
 		
 		PrintWriter outWriter = null;

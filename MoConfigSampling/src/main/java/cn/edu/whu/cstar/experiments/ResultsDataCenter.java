@@ -3,10 +3,12 @@ package cn.edu.whu.cstar.experiments;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.edu.whu.cstar.mosampling.moea.MOEA.ObjectiveName;
+import cn.edu.whu.cstar.mosampling.moea.MoConfigProblem.ObjectiveName;
 
 /***
- * To save the experimental data using static functions, including addData() and getData().
+ * <p>To save the experimental data using static functions, including addData() and getData().</p>
+ * @author yongfeng
+ * @update 2019.10.5
  */
 public class ResultsDataCenter {
 	
